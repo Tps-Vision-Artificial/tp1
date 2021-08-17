@@ -1,7 +1,5 @@
 import cv2 as cv
 
-alpha_slider_max = 100
-
 
 def main(val):
     # iniciamos la capturadora con el nombre cap
@@ -26,7 +24,7 @@ def main(val):
         #2
         trackbar_val = get_trackbar_value(trackbar_name=trackbar_name, window_name=window_name)
         adapt_frame = adaptive_threshold(frame=gray_frame, slider_max=slider_max,
-                                         adaptative=cv.ADAPTIVE_THRESH_MEAN_C,
+                                         adaptative=cv.ADAPTIVE_THRESH_GAUSSIAN_C,
                                          binary=cv.THRESH_BINARY,
                                          trackbar_value=trackbar_val)
         #3
@@ -36,11 +34,10 @@ def main(val):
         contours = get_contours(frame=frame_denoised, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE)
         if len(contours) > 0:
             biggest_contour = get_biggest_contour(contours=contours)
-            if compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours, max_diff=0.5):
+            if compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours, max_diff=1):
                 draw_contours(frame=frame_denoised, contours=biggest_contour, color=color_white, thickness=20)
             draw_contours(frame=frame_denoised, contours=biggest_contour, color=color_white, thickness=3)
-        frame_colored = apply_color_convertion(frame_denoised, color=cv.COLOR_GRAY2BGR)
-        cv.imshow('Window', frame_colored)
+        cv.imshow('Window', frame_denoised)
 
         if cv.waitKey(1) & 0xFF == ord('k'):
             if biggest_contour is not None:
