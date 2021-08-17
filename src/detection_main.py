@@ -12,7 +12,7 @@ def main(val):
     cv.namedWindow(window_name)
     cap = cv.VideoCapture(0)
     biggest_contour = None
-    color_white = (255, 0, 0)
+    color_white = (255, 255, 255)
 
     create_trackbar(trackbar_name, window_name, slider_max)
     saved_contours = []
