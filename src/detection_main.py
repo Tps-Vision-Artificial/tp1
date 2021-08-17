@@ -5,14 +5,17 @@ def main(val):
     # iniciamos la capturadora con el nombre cap
     cap = cv.VideoCapture(0)
     window_name = 'Window'
-    trackbar_name = 'Trackbar'
+    threshold_trackbar_name = 'Trackbar'
+    difference_trackbar_name = 'Difference'
     slider_max = 151
     cv.namedWindow(window_name)
     cap = cv.VideoCapture(0)
     biggest_contour = None
     color_white = (255, 255, 255)
 
-    create_trackbar(trackbar_name, window_name, slider_max)
+    create_trackbar(threshold_trackbar_name, window_name, slider_max)
+    create_trackbar(difference_trackbar_name, window_name, 1)
+
     saved_contours = []
     while True:
         ret, frame = cap.read()
@@ -22,7 +25,7 @@ def main(val):
         gray_frame = apply_color_convertion(frame=frame, color=cv.COLOR_BGR2GRAY)
 
         #2
-        trackbar_val = get_trackbar_value(trackbar_name=trackbar_name, window_name=window_name)
+        trackbar_val = get_trackbar_value(trackbar_name=threshold_trackbar_name, window_name=window_name)
         adapt_frame = adaptive_threshold(frame=gray_frame, slider_max=slider_max,
                                          adaptative=cv.ADAPTIVE_THRESH_GAUSSIAN_C,
                                          binary=cv.THRESH_BINARY,
@@ -34,13 +37,15 @@ def main(val):
         contours = get_contours(frame=frame_denoised, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE)
         if len(contours) > 0:
             biggest_contour = get_biggest_contour(contours=contours)
-            if compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours, max_diff=1):
-                draw_contours(frame=frame_denoised, contours=biggest_contour, color=color_white, thickness=20)
+            trackbar_val2 = get_trackbar_value(trackbar_name=difference_trackbar_name, window_name=window_name)
+            if compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours, max_diff=trackbar_val2):
+                draw_contours(frame=frame_denoised, contours=biggest_contour, color=(0,0,0), thickness=20)
             draw_contours(frame=frame_denoised, contours=biggest_contour, color=color_white, thickness=3)
         cv.imshow('Window', frame_denoised)
 
         if cv.waitKey(1) & 0xFF == ord('k'):
             if biggest_contour is not None:
+                #usar un dict (el HashMap de Python) para poder ponerle un nombre
                 saved_contours.append(biggest_contour)
 
         if cv.waitKey(1) & 0xFF == ord('q'):
