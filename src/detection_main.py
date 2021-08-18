@@ -13,12 +13,13 @@ def main(val):
     cap = cv.VideoCapture(0)
     biggest_contour = None
     color_white = (255, 255, 255)
+    i = 0
 
     create_trackbar(threshold_trackbar_name, window_name, slider_max)
     create_trackbar(difference_trackbar_name, window_name, 100)
     create_trackbar(radius_trackbar_name,window_name,30)
 
-    saved_contours = []
+    saved_contours = {}
     while True:
         ret, frame = cap.read()
         frame = cv.flip(frame, 1)
@@ -41,7 +42,7 @@ def main(val):
         if len(contours) > 0:
             biggest_contour = get_biggest_contour(contours=contours)
             max_diff = get_percentage(trackbar_name=difference_trackbar_name, window_name=window_name)
-            if compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours, max_diff=max_diff):
+            if compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours.keys(), max_diff=max_diff):
                 draw_contours(frame=frame_denoised, contours=biggest_contour, color=(0, 0, 0), thickness=20)
             draw_contours(frame=frame_denoised, contours=biggest_contour, color=color_white, thickness=3)
         cv.imshow('Window', frame_denoised)
@@ -49,7 +50,8 @@ def main(val):
         if cv.waitKey(1) & 0xFF == ord('k'):
             if biggest_contour is not None:
                 # usar un dict (el HashMap de Python) para poder ponerle un nombre
-                saved_contours.append(biggest_contour)
+                saved_contours[biggest_contour] = 'Object n° ' + str(i)
+                i =+ 1
 
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
