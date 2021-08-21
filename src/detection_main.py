@@ -42,7 +42,7 @@ def main(val):
         if len(contours) > 0:
             biggest_contour = get_biggest_contour(contours=contours)
             max_diff = get_percentage(trackbar_name=difference_trackbar_name, window_name=window_name)
-            if compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours.keys(),
+            if compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours.values(),
                                 max_diff=max_diff):
                 draw_contours(frame=frame, contours=biggest_contour, color=(0, 255, 0), thickness=20)
             draw_contours(frame=frame, contours=biggest_contour, color=(0, 0, 255), thickness=3)
@@ -51,7 +51,7 @@ def main(val):
         if cv.waitKey(1) & 0xFF == ord('k'):
             if biggest_contour is not None:
                 # usar un dict (el HashMap de Python) para poder ponerle un nombre
-                saved_contours.update({biggest_contour: 'Object n° ' + str(i)})
+                saved_contours['Object n° ' + str(i)] = biggest_contour
                 i = + 1
 
         if cv.waitKey(1) & 0xFF == ord('q'):
