@@ -10,7 +10,7 @@ def main(val):
     radius_trackbar_name = 'Radius'
     slider_max = 151
     cv.namedWindow(window_name)
-    cap = cv.VideoCapture(0)
+    # cap = cv.VideoCapture()
     biggest_contour = None
     font = cv.FONT_HERSHEY_SIMPLEX
     i = 0
@@ -29,6 +29,7 @@ def main(val):
 
         # 2
         trackbar_val = get_trackbar_value(trackbar_name=threshold_trackbar_name, window_name=window_name)
+
         adapt_frame = adaptive_threshold(frame=gray_frame, slider_max=slider_max,
                                          adaptative=cv.ADAPTIVE_THRESH_GAUSSIAN_C,
                                          binary=cv.THRESH_BINARY,
@@ -39,19 +40,20 @@ def main(val):
 
         # 4 Contours
         contours = get_contours(frame=frame_denoised, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE)
+        final_frame = apply_color_convertion(frame=frame_denoised, color=cv.COLOR_GRAY2BGR)
+
         if len(contours) > 0:
             biggest_contour = get_biggest_contour(contours=contours)
             max_diff = get_percentage(trackbar_name=difference_trackbar_name, window_name=window_name)
-            if compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours.values(),
-                                max_diff=max_diff):
-                draw_contours(frame=frame, contours=biggest_contour, color=(0, 255, 0), thickness=20)
-                contours_items = saved_contours.items()
+            if bool(saved_contours) and compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours.values(), max_diff=max_diff):
+                draw_contours(frame=frame_denoised, contours=biggest_contour, color=(0, 255, 0), thickness=20)
+                contours_items = saved_contours.values()
                 for key, value in contours_items:
                     if value == biggest_contour:
                         name = key
-                cv.putText(frame, name, (200, 70), font, 1, (0, 0, 0), 2, cv.LINE_AA)
-            draw_contours(frame=frame, contours=biggest_contour, color=(0, 0, 255), thickness=3)
-        cv.imshow('Window', frame)
+                cv.putText(final_frame, name, (200, 70), font, 1, (0, 0, 0), 2, cv.LINE_AA)
+            draw_contours(frame=final_frame, contours=biggest_contour, color=(0, 0, 255), thickness=3)
+        cv.imshow('Window', final_frame)
 
         if cv.waitKey(1) & 0xFF == ord('k'):
             if biggest_contour is not None:
