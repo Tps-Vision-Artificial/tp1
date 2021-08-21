@@ -12,7 +12,7 @@ def main(val):
     cv.namedWindow(window_name)
     cap = cv.VideoCapture(0)
     biggest_contour = None
-    color_white = (255, 255, 255)
+    font = cv.FONT_HERSHEY_SIMPLEX
     i = 0
 
     create_trackbar(threshold_trackbar_name, window_name, slider_max)
@@ -45,6 +45,11 @@ def main(val):
             if compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours.values(),
                                 max_diff=max_diff):
                 draw_contours(frame=frame, contours=biggest_contour, color=(0, 255, 0), thickness=20)
+                contours_items = saved_contours.items()
+                for key, value in contours_items:
+                    if value == biggest_contour:
+                        name = key
+                cv.putText(frame, name, (200, 70), font, 1, (0, 0, 0), 2, cv.LINE_AA)
             draw_contours(frame=frame, contours=biggest_contour, color=(0, 0, 255), thickness=3)
         cv.imshow('Window', frame)
 
