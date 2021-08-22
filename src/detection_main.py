@@ -45,14 +45,9 @@ def main(val):
         if len(contours) > 0:
             biggest_contour = get_biggest_contour(contours=contours)
             max_diff = get_percentage(trackbar_name=difference_trackbar_name, window_name=window_name)
-            name = "no recognized"
             if bool(saved_contours) and compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours.values(), max_diff=max_diff):
                 draw_contours(frame=final_frame, contours=biggest_contour, color=(0, 255, 0), thickness=20)
-                contours_items = saved_contours.items()
-                for key, value in contours_items:
-                    if value == biggest_contour:
-                        name = key
-                cv.putText(final_frame, name, (200, 70), font, 1, (0, 0, 0), 2, cv.LINE_AA)
+                cv.putText(final_frame, get_key(biggest_contour=biggest_contour, saved_contours=saved_contours), (200, 70), font, 1, (50, 255, 0), 2, cv.LINE_AA)
             draw_contours(frame=final_frame, contours=biggest_contour, color=(0, 0, 255), thickness=3)
         cv.imshow('Window', final_frame)
 
@@ -89,6 +84,12 @@ def denoise(frame, method, radius):
     closing = cv.morphologyEx(opening, cv.MORPH_CLOSE, kernel)
     return closing
 
+
+def get_key(biggest_contour, saved_contours):
+    for key, value in saved_contours.items():
+        if biggest_contour == value:
+            return key
+    return "key doesn't exist"
 
 def apply_color_convertion(frame, color):
     return cv.cvtColor(frame, color)
