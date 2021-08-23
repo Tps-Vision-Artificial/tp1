@@ -1,11 +1,11 @@
 import cv2 as cv
 
 
-def main(val):
+def main():
     # iniciamos la capturadora con el nombre cap
     cap = cv.VideoCapture(0)
     window_name = 'Window'
-    threshold_trackbar_name = 'Trackbar'
+    threshold_trackbar_name = 'Treshold Trackbar'
     difference_trackbar_name = 'Difference'
     radius_trackbar_name = 'Radius'
     slider_max = 151
@@ -38,7 +38,7 @@ def main(val):
         radius = get_trackbar_value(trackbar_name=radius_trackbar_name, window_name=window_name)
         frame_denoised = denoise(frame=adapt_frame, method=cv.MORPH_ELLIPSE, radius=radius)
 
-        # 4 Contours
+        # 4 Contoursq
         contours = get_contours(frame=frame_denoised, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE)
         final_frame = apply_color_convertion(frame=frame_denoised, color=cv.COLOR_GRAY2BGR)
 
@@ -47,14 +47,15 @@ def main(val):
             max_diff = get_percentage(trackbar_name=difference_trackbar_name, window_name=window_name)
             if bool(saved_contours) and compare_contours(contour_to_compare=biggest_contour, saved_contours=saved_contours.values(), max_diff=max_diff):
                 draw_contours(frame=final_frame, contours=biggest_contour, color=(0, 255, 0), thickness=20)
-                cv.putText(final_frame, get_key(biggest_contour=biggest_contour, saved_contours=saved_contours), (200, 70), font, 1, (50, 255, 0), 2, cv.LINE_AA)
-            draw_contours(frame=final_frame, contours=biggest_contour, color=(0, 0, 255), thickness=3)
+                cv.putText(final_frame, get_key(biggest_contour=biggest_contour, saved_contours=saved_contours, max_diff=max_diff), (200, 70), font, 1, (50, 255, 0), 2, cv.LINE_AA)
+            else:
+                draw_contours(frame=final_frame, contours=biggest_contour, color=(0, 0, 255), thickness=3)
         cv.imshow('Window', final_frame)
 
         if cv.waitKey(1) & 0xFF == ord('k'):
             if biggest_contour is not None:
                 # usar un dict (el HashMap de Python) para poder ponerle un nombre
-                saved_contours['Object n° ' + str(i)] = biggest_contour
+                saved_contours['Object number ' + str(i)] = biggest_contour
                 i = i + 1
 
         if cv.waitKey(1) & 0xFF == ord('q'):
@@ -75,7 +76,7 @@ def get_trackbar_value(trackbar_name, window_name):
 
 
 def get_percentage(trackbar_name, window_name):
-    return int(cv.getTrackbarPos(trackbar_name, window_name) / 100)
+    return int(cv.getTrackbarPos(trackbar_name, window_name))
 
 
 def denoise(frame, method, radius):
@@ -85,9 +86,9 @@ def denoise(frame, method, radius):
     return closing
 
 
-def get_key(biggest_contour, saved_contours):
+def get_key(biggest_contour, saved_contours, max_diff):
     for key, value in saved_contours.items():
-        if biggest_contour == value:
+        if cv.matchShapes(biggest_contour, value, cv.CONTOURS_MATCH_I2, 0) < max_diff:
             return key
     return "key doesn't exist"
 
@@ -125,4 +126,4 @@ def compare_contours(contour_to_compare, saved_contours, max_diff):
     return False
 
 
-main(0)
+main()
