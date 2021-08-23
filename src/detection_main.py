@@ -13,7 +13,7 @@ def main():
     # cap = cv.VideoCapture()
     biggest_contour = None
     font = cv.FONT_HERSHEY_SIMPLEX
-    i = 0
+    i = 1
 
     create_trackbar(threshold_trackbar_name, window_name, slider_max)
     create_trackbar(radius_trackbar_name, window_name, 30)
@@ -38,7 +38,7 @@ def main():
         radius = get_trackbar_value(trackbar_name=radius_trackbar_name, window_name=window_name)
         frame_denoised = denoise(frame=adapt_frame, method=cv.MORPH_ELLIPSE, radius=radius)
 
-        # 4 Contoursq
+        # 4 Contours
         contours = get_contours(frame=frame_denoised, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE)
         final_frame = apply_color_convertion(frame=frame_denoised, color=cv.COLOR_GRAY2BGR)
 
