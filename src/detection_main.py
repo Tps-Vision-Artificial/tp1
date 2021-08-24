@@ -13,7 +13,7 @@ def main():
     # cap = cv.VideoCapture()
     biggest_contour = None
     font = cv.FONT_HERSHEY_SIMPLEX
-    i = 0
+    i = 1
 
     create_trackbar(threshold_trackbar_name, window_name, slider_max)
     create_trackbar(radius_trackbar_name, window_name, 30)
@@ -30,14 +30,11 @@ def main():
         # 2
         trackbar_val = get_trackbar_value(trackbar_name=threshold_trackbar_name, window_name=window_name)
 
-        adapt_frame = adaptive_threshold(frame=gray_frame, slider_max=slider_max,
-                                         adaptative=cv.ADAPTIVE_THRESH_GAUSSIAN_C,
-                                         # black to white
-                                         binary=cv.THRESH_BINARY,
-                                         trackbar_value=trackbar_val)
+        _, threshold_frame = threshold(frame=gray_frame, slider_max=slider_max, trackbar_value=trackbar_val)
         # 3
+
         radius = get_trackbar_value(trackbar_name=radius_trackbar_name, window_name=window_name)
-        frame_denoised = denoise(frame=adapt_frame, method=cv.MORPH_ELLIPSE, radius=radius)
+        frame_denoised = denoise(frame=threshold_frame, method=cv.MORPH_ELLIPSE, radius=radius)
 
         # 4 Contours
         contours = get_contours(frame=frame_denoised, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE)
@@ -54,8 +51,11 @@ def main():
                 show_text(final_frame_color, key_of_matched_shape, font)
             else:
                 draw_contours(frame=final_frame_color, contours=biggest_contour, color=(0, 0, 255), thickness=3)
-        cv.imshow('Window', final_frame)
-        cv.imshow('Color', final_frame_color)
+        # cv.imshow('Frame', frame)
+        cv.imshow('Gray', gray_frame)
+        cv.imshow('Threshold', threshold_frame)
+        cv.imshow('Denoised', frame_denoised)
+        cv.imshow('Window', final_frame_color)
 
         if cv.waitKey(1) & 0xFF == ord('k'):
             if biggest_contour is not None:
@@ -102,8 +102,9 @@ def apply_color_convertion(frame, color):
     return cv.cvtColor(frame, color)
 
 
-def adaptive_threshold(frame, slider_max, adaptative, binary, trackbar_value):
-    return cv.adaptiveThreshold(frame, slider_max, adaptative, binary, trackbar_value, 0)
+def threshold(frame, slider_max, trackbar_value):
+    # return cv.adaptiveThreshold(frame, slider_max, adaptative, binary, trackbar_value, 0)
+    return cv.threshold(frame, trackbar_value, slider_max, cv.THRESH_BINARY_INV)
 
 
 def draw_contours(frame, contours, color, thickness):
